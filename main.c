@@ -88,30 +88,34 @@ void AO4(void *data, PAO next_ao) {
 }
 
 int main(int argc, char *argv[]) {
-    PAO1_Data pao1 = malloc(sizeof(AO1_Data));
-    pao1->N = 0;
-    pao1->seed = time(NULL);
+    PAO1_Data init_data = malloc(sizeof(AO1_Data));
+    init_data->N = 0;
+    init_data->seed = time(NULL);
     if (argc == 2) {
-        pao1->N = atoi(argv[1]);
+        init_data->N = atoi(argv[1]);
     } else if (argc == 3) {
-        pao1->N = atoi(argv[1]);
-        pao1->seed = atoi(argv[2]);
+        init_data->N = atoi(argv[1]);
+        init_data->seed = atoi(argv[2]);
     } else {
         printf("usage: ./st_pipeline <N> <seed>.\n");
         return ERROR;
     }
-
-    PAO ao4 = createActiveObject((handler_t) AO4,pao1->N, NULL);
-    PAO ao3 = createActiveObject((handler_t) AO3,pao1->N, ao4);
-    PAO ao2 = createActiveObject((handler_t) AO2,pao1->N, ao3);
-    PAO ao1 = createActiveObject((handler_t) AO1,1, ao2);
-    enqueue(ao1->queue, pao1);
+    PAO paos[4];
+    paos[0] = createActiveObject((handler_t) AO4, init_data->N, NULL);
+    paos[1] = createActiveObject((handler_t) AO3, init_data->N, paos[0]);
+    paos[2] = createActiveObject((handler_t) AO2, init_data->N, paos[1]);
+    paos[3] = createActiveObject((handler_t) AO1,1, paos[2]);
+    enqueue(paos[3]->queue, init_data);
 
 
     //wait for last
 
-    if(ao4 != NULL)
-        pthread_join(ao4->thread,NULL);
-    printf("%p",&ao3->thread);
+    for (int i = 3; i >= 0; --i) {
+        if(paos[i] != NULL) {
+            pthread_join(paos[i]->thread, NULL);
+            printf("-%p\n", &paos[i]->thread);
+        }
+
+    }
     return 0;
 }

@@ -19,6 +19,8 @@ PAO createActiveObject(handler_t func, int N, PAO next) {
     ao->untilFinish = N;
     ao->next = next;
     pthread_create(&ao->thread, NULL, (void *(*)(void *)) AO_function, ao);
+    printf("create-------%p-------\n",&ao->thread);
+
     return ao;
 }
 
@@ -27,7 +29,7 @@ PQueue getQueue(PAO this) {
 }
 
 void stop(PAO this) {
-    printf("free--------------\n");
+    printf("free-------%p-------\n",&this->thread);
     pthread_mutex_lock(&this->queue->lock);
     pthread_cond_broadcast(&this->queue->cond);
     pthread_mutex_unlock(&this->queue->lock);
