@@ -35,52 +35,46 @@ void AO1(void *data, PAO next_ao) {
     if (data == NULL)return;
 
     PAO1_Data pao1Data = (PAO1_Data) data;
-    int randomNumber =0;
+    int randomNumber;
     srand(pao1Data->seed);
     for (int i = 0; i < pao1Data->N; ++i) {
         randomNumber = rand() % 900000 + 100000;
-        int * ptr = (int*)malloc(sizeof(int));
+        int *ptr = (int *) malloc(sizeof(int));
         *ptr = randomNumber;
 
         enqueue(next_ao->queue, ptr);
-        usleep(1);
+        usleep(1000);//1 ms
     }
     free(pao1Data);
 
 }
 
 void AO2(void *data, PAO next_ao) {
-    printf("AO2 ");
-
     if (data == NULL)return;
 
-    int*  num = (int*)data;
+    int *num = (int *) data;
 
-    printf("%d\n", *num);
-    printf((isPrime(*num) ? "true\n" : "false\n"));
+    printf("%d\n%s\n", *num,(isPrime(*num) ? "true" : "false"));
     *num += 11;
     enqueue(next_ao->queue, (num));
 }
 
 void AO3(void *data, PAO next_ao) {
-    printf("AO3 ");
 
     if (data == NULL)return;
 
-    int* num = (int*)data;
-    printf("%d\n", *num);
-    printf((isPrime(*num) ? "true\n" : "false\n"));
+    int *num = (int *) data;
+    printf("%d\n%s\n", *num,(isPrime(*num) ? "true" : "false"));
     *num -= 13;
     enqueue(next_ao->queue, (num));
 }
 
 void AO4(void *data, PAO next_ao) {
-    printf("AO4 ");
 
     if (data == NULL)return;
 
-    int* num = (int*)data;
-    printf("%d\n", *num);
+    int *num = (int *) data;
+    printf("%d\n%s\n", *num,(isPrime(*num) ? "true" : "false"));
     *num += 2;
     printf("%d\n", *num);
     free(data);
@@ -100,22 +94,16 @@ int main(int argc, char *argv[]) {
         printf("usage: ./st_pipeline <N> <seed>.\n");
         return ERROR;
     }
-    PAO paos[4];
-    paos[0] = createActiveObject((handler_t) AO4, init_data->N, NULL);
-    paos[1] = createActiveObject((handler_t) AO3, init_data->N, paos[0]);
-    paos[2] = createActiveObject((handler_t) AO2, init_data->N, paos[1]);
-    paos[3] = createActiveObject((handler_t) AO1,1, paos[2]);
-    enqueue(paos[3]->queue, init_data);
+    PAO pao4 = createActiveObject((handler_t) AO4, init_data->N, NULL);
+    PAO pao3 = createActiveObject((handler_t) AO3, init_data->N, pao4);
+    PAO pao2 = createActiveObject((handler_t) AO2, init_data->N, pao3);
+    PAO pao1 = createActiveObject((handler_t) AO1, 1, pao2);
+    enqueue(pao1->queue, init_data);
 
+    stop(pao1);
+    stop(pao2);
+    stop(pao3);
+    stop(pao4);
 
-    //wait for last
-
-    for (int i = 3; i >= 0; --i) {
-        if(paos[i] != NULL) {
-            pthread_join(paos[i]->thread, NULL);
-            printf("-%p\n", &paos[i]->thread);
-        }
-
-    }
     return 0;
 }

@@ -11,8 +11,6 @@ PQueue createQueue() {
 }
 
 void enqueue(PQueue queue, void* data) {
-
-
     PNode newNode = (PNode)malloc(sizeof(Node));
     newNode->data = data;
     newNode->next = NULL;
