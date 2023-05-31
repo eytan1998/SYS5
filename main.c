@@ -34,10 +34,10 @@ void AO1(void *data, PAO next_ao) {
 
     if (data == NULL)return;
 
-    PAO1_Data pao1Data = (PAO1_Data) data;
+    PAO1_Data initData = (PAO1_Data) data;
     int randomNumber;
-    srand(pao1Data->seed);
-    for (int i = 0; i < pao1Data->N; ++i) {
+    srand(initData->seed);
+    for (int i = 0; i < initData->N; ++i) {
         randomNumber = rand() % 900000 + 100000;
         int *ptr = (int *) malloc(sizeof(int));
         *ptr = randomNumber;
@@ -45,7 +45,8 @@ void AO1(void *data, PAO next_ao) {
         enqueue(next_ao->queue, ptr);
         usleep(1000);//1 ms
     }
-    free(pao1Data);
+    //no longer needed
+    free(initData);
 
 }
 
@@ -94,6 +95,8 @@ int main(int argc, char *argv[]) {
         printf("usage: ./st_pipeline <N> <seed>.\n");
         return ERROR;
     }
+
+
     PAO pao4 = createActiveObject((handler_t) AO4, init_data->N, NULL);
     PAO pao3 = createActiveObject((handler_t) AO3, init_data->N, pao4);
     PAO pao2 = createActiveObject((handler_t) AO2, init_data->N, pao3);

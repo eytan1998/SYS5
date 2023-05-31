@@ -1,6 +1,7 @@
 
 
 #ifndef SYS5_AO_H
+#define SYS5_AO_H
 
 #include "Queue.h"
 
@@ -20,6 +21,5 @@ PQueue getQueue(PAO this);
 
 void stop(PAO this);
 
-#define SYS5_AO_H
 
 #endif //SYS5_AO_H
